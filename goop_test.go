@@ -33,3 +33,32 @@ func TestDisplay(t *testing.T) {
 		})
 	}
 }
+
+func TestDefine(t *testing.T) {
+	tests := []struct {
+		name           string
+		prog           string
+		expectedOutput string
+	}{
+		{
+			name:           "Define a value and display",
+			prog:           `(define foo "Hello, world!") (display foo)`,
+			expectedOutput: "Hello, world!\n",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			prog, err := NewProgram(strings.NewReader(test.prog))
+			if err != nil {
+				t.Fatalf("Failed to create program: %v", err)
+			}
+			output := &strings.Builder{}
+			if err := prog.Run(RunOptions{Stdout: output}); err != nil {
+				t.Errorf("Failed to run program: %v", err)
+			}
+			if output.String() != test.expectedOutput {
+				t.Errorf("Expected output: %q, got: %q", test.expectedOutput, output.String())
+			}
+		})
+	}
+}

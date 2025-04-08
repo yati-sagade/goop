@@ -44,6 +44,26 @@ type RunOptions struct {
 	Stdout io.Writer
 }
 
+func (p *Program) maybeRunSpecialForm(s *Sexpr) (bool, error) {
+	if s.IsAtom() {
+		return false, nil
+	}
+	if len(s.List) == 0 {
+		return false, nil
+	}
+	if !s.List[0].IsAtom() {
+		return false, nil
+	}
+	if s.List[0].Atom.Type != Identifier {
+		return false, nil
+	}
+	switch s.List[0].Atom.Val.(string) {
+	case "define":
+		return true, p.define(s.List[1:])
+	}
+	return false, nil
+}
+
 func (p *Program) Run(opts RunOptions) error {
 	// Load builtins
 	if err := p.loadBuiltins(opts); err != nil {
@@ -59,7 +79,10 @@ func (p *Program) Run(opts RunOptions) error {
 		if err != nil {
 			return err
 		}
-		if s.IsList() {
+		ran, err := p.maybeRunSpecialForm(s)
+		if ran && err != nil {
+			return err
+		} else if !ran && s.IsList() {
 			f, err := p.eval(s.List[0])
 			if err != nil {
 				return err
@@ -91,5 +114,20 @@ func (p *Program) Run(opts RunOptions) error {
 func (p *Program) loadBuiltins(opts RunOptions) error {
 	p.env.Set("display", NewFuncVal(makeDisplayFunc(opts.Stdout)))
 	p.env.Set("foo", NewStringVal("haha"))
+	return nil
+}
+
+func (p *Program) define(args []*Sexpr) error {
+	if len(args) != 2 {
+		return fmt.Errorf("define: expected 2 arguments, got %d", len(args))
+	}
+	if !args[0].IsAtom() || args[0].Atom.Type != Identifier {
+		return fmt.Errorf("define: expected identifier, got %s", args[0].String())
+	}
+	v, err := p.eval(args[1])
+	if err != nil {
+		return fmt.Errorf("define: %v", err)
+	}
+	p.env.Set(args[0].Atom.Val.(string), v)
 	return nil
 }
