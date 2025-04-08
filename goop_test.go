@@ -2,32 +2,34 @@ package goop
 
 import (
 	"fmt"
-	"os"
+	"strings"
 	"testing"
 )
 
-func writeTemp(s string) (string, error) {
-	tmpFile, err := os.CreateTemp("", "test_program")
-	if err != nil {
-		return "", err
-	}
-	defer tmpFile.Close()
-	if _, err := tmpFile.WriteString(s); err != nil {
-		return "", err
-	}
-	return tmpFile.Name(), nil
-}
-
 func TestDisplay(t *testing.T) {
-	// Create a temporary file for the program
-	fname, err := writeTemp(`(display "Hello, world!")`)
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
+	tests := []struct {
+		args           []string
+		expectedOutput string
+	}{
+		{args: []string{`"Hello, world!"`}, expectedOutput: "Hello, world!\n"},
+		{args: []string{`""`}, expectedOutput: "\n"},
+		{args: []string{}, expectedOutput: "\n"},
+		{args: []string{`"Hello\n     spaces!"`}, expectedOutput: "Hello\n     spaces!\n"},
 	}
-	defer os.Remove(fname) // Clean up the temp file after the test
-	p, err := LoadProgram(fname)
-	if err != nil {
-		t.Fatalf("Failed to load program: %v", err)
+	for _, test := range tests {
+		progname := fmt.Sprintf("(display %s)", strings.Join(test.args, " "))
+		t.Run(progname, func(t *testing.T) {
+			prog, err := NewProgram(strings.NewReader(progname))
+			if err != nil {
+				t.Fatalf("Failed to create program: %v", err)
+			}
+			output := &strings.Builder{}
+			if err := prog.Run(RunOptions{Stdout: output}); err != nil {
+				t.Errorf("Failed to run program: %v", err)
+			}
+			if output.String() != test.expectedOutput {
+				t.Errorf("Expected output: %q, got: %q", test.expectedOutput, output.String())
+			}
+		})
 	}
-	fmt.Println("Loaded program:", p)
 }

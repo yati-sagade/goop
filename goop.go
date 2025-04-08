@@ -20,6 +20,8 @@ type Val struct {
 	Val  any
 }
 
+type GoopFunc func(args []*Val) (*Val, error)
+
 func NewStringVal(s string) *Val {
 	return &Val{
 		Type: ValTypeString,
@@ -27,7 +29,7 @@ func NewStringVal(s string) *Val {
 	}
 }
 
-func NewFuncVal(f func(args []*Val) (*Val, error)) *Val {
+func NewFuncVal(f GoopFunc) *Val {
 	return &Val{
 		Type: ValTypeFunction,
 		Val:  f,
@@ -35,6 +37,26 @@ func NewFuncVal(f func(args []*Val) (*Val, error)) *Val {
 }
 
 func (v *Val) String() string {
+	switch v.Type {
+	case ValTypeString:
+		return v.Val.(string)
+	case ValTypeNumber:
+		val := v.Val.(float64)
+		if val == float64(int(val)) {
+			return fmt.Sprintf("%d", int(val))
+		}
+		return fmt.Sprintf("%f", val)
+	case ValTypeBool:
+		if v.Val.(bool) {
+			return "#t"
+		}
+		return "#f"
+	default:
+		panic("unknown value type: " + string(v.Type))
+	}
+}
+
+func (v *Val) Print() string {
 	switch v.Type {
 	case ValTypeString:
 		val := v.Val.(string)
@@ -56,6 +78,6 @@ func (v *Val) String() string {
 		}
 		return "#f"
 	default:
-		return fmt.Sprintf("%v", v.Val)
+		panic("unknown value type: " + string(v.Type))
 	}
 }

@@ -40,9 +40,13 @@ func (p *Program) eval(s *Sexpr) (*Val, error) {
 	return nil, nil
 }
 
-func (p *Program) Run() error {
+type RunOptions struct {
+	Stdout io.Writer
+}
+
+func (p *Program) Run(opts RunOptions) error {
 	// Load builtins
-	if err := p.loadBuiltins(); err != nil {
+	if err := p.loadBuiltins(opts); err != nil {
 		return err
 	}
 	s, err := io.ReadAll(p.src)
@@ -71,7 +75,7 @@ func (p *Program) Run() error {
 				}
 				args = append(args, v)
 			}
-			gf := f.Val.(func(args []*Val) (*Val, error))
+			gf := f.Val.(GoopFunc)
 			ret, err := gf(args)
 			if err != nil {
 				return err
@@ -84,8 +88,8 @@ func (p *Program) Run() error {
 	return nil
 }
 
-func (p *Program) loadBuiltins() error {
-	p.env.Set("display", NewFuncVal(displayFunc))
+func (p *Program) loadBuiltins(opts RunOptions) error {
+	p.env.Set("display", NewFuncVal(makeDisplayFunc(opts.Stdout)))
 	p.env.Set("foo", NewStringVal("haha"))
 	return nil
 }

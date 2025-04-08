@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading program: %v", err)
 	}
-	if err := p.Run(); err != nil {
+	if err := p.Run(goop.RunOptions{}); err != nil {
 		log.Fatalf("Error running program: %v", err)
 	}
 }

@@ -2,14 +2,21 @@ package goop
 
 import (
 	"fmt"
+	"io"
+	"os"
 )
 
-func displayFunc(args []*Val) (*Val, error) {
-	anys := make([]any, 0)
-	for _, arg := range args {
-		anys = append(anys, arg)
+func makeDisplayFunc(stdout io.Writer) GoopFunc {
+	if stdout == nil {
+		stdout = os.Stdout
 	}
-	fmt.Print(anys...)
-	fmt.Println()
-	return nil, nil
+	return func(args []*Val) (*Val, error) {
+		anys := make([]any, 0)
+		for _, arg := range args {
+			anys = append(anys, arg)
+		}
+		fmt.Fprint(stdout, anys...)
+		fmt.Fprintln(stdout)
+		return nil, nil
+	}
 }
