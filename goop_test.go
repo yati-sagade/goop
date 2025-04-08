@@ -41,7 +41,7 @@ func TestDefine(t *testing.T) {
 		expectedOutput string
 	}{
 		{
-			name:           "Define a value and display",
+			name:           "Define a string value and display",
 			prog:           `(define foo "Hello, world!") (display foo)`,
 			expectedOutput: "Hello, world!\n",
 		},
