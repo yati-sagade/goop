@@ -73,7 +73,12 @@ func (p *Program) Run(opts RunOptions) error {
 	if err != nil {
 		return err
 	}
-	parser := NewParser(string(s))
+	tokenizer := NewTokenizer(string(s))
+	tokens, err := tokenizer.Go()
+	if err != nil {
+		return fmt.Errorf("tokenizer error: %v", err)
+	}
+	parser := NewParser(tokens)
 	for !parser.atEnd() {
 		s, err := parser.Next()
 		if err != nil {

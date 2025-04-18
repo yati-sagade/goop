@@ -76,6 +76,14 @@ func NewAtom(ty AtomType, value string) *Sexpr {
 	return &Sexpr{Atom: &Atom{Type: ty, Val: value}}
 }
 
+func NewStringAtom(value string) *Sexpr {
+	return &Sexpr{Atom: &Atom{Type: String, Val: value}}
+}
+
+func NewBoolAtom(value bool) *Sexpr {
+	return &Sexpr{Atom: &Atom{Type: Bool, Val: value}}
+}
+
 // NewList creates a new Sexpr with a List value
 func NewList(items []*Sexpr) *Sexpr {
 	return &Sexpr{List: items}
