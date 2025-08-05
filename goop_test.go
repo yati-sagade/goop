@@ -41,9 +41,21 @@ func TestDefine(t *testing.T) {
 		expectedOutput string
 	}{
 		{
-			name:           "Define a string value and display",
-			prog:           `(define foo "Hello, world!") (display foo)`,
+			name: "Define a string value and display",
+			prog: `
+				(define foo "Hello, world!")
+				(display foo)
+			`,
 			expectedOutput: "Hello, world!\n",
+		},
+		{
+			name: "Redefine a string value and display",
+			prog: `
+				(define foo "Hello, world!")
+				(define foo "Goodbye, world!")
+				(display foo)
+			`,
+			expectedOutput: "Goodbye, world!\n",
 		},
 	}
 	for _, test := range tests {

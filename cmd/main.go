@@ -1,25 +1,34 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/yati-sagade/goop"
 )
 
 func main() {
-
-	prog := `(display "Hello,      \nworld!" foo)`
-	/*
-		t := goop.NewTokenizer(prog)
-		tokens, err := t.Go()
-		if err != nil {
-			log.Fatalf("Error tokenizing: %v", err)
+	var prog string
+	if len(os.Args) > 1 {
+		if os.Args[1] == "-" {
+			input, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				log.Fatalf("Error reading stdin: %v", err)
+			}
+			prog = string(input)
+		} else {
+			input, err := os.ReadFile(os.Args[1])
+			if err != nil {
+				log.Fatalf("Error reading file %s: %v", os.Args[1], err)
+			}
+			prog = string(input)
 		}
-		for _, token := range tokens {
-			log.Printf("Token: %v", token.String())
-		}
-	*/
+	} else {
+		fmt.Println("Usage: goop [filename|-]")
+	}
 	p, err := goop.NewProgram(strings.NewReader(prog))
 	if err != nil {
 		log.Fatalf("Error loading program: %v", err)
