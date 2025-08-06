@@ -51,6 +51,10 @@ func (t *Tokenizer) consumeWhitespace() {
 	}
 }
 
+func isDelim(r rune) bool {
+	return unicode.IsSpace(r) || r == '(' || r == ')' || r == '"'
+}
+
 func (t *Tokenizer) matchWord(s string) bool {
 	if t.atEnd() {
 		return false
@@ -59,7 +63,7 @@ func (t *Tokenizer) matchWord(s string) bool {
 		return false
 	}
 	if t.pos+len(s) < len(t.input) {
-		return unicode.IsSpace(t.input[t.pos+len(s)])
+		return isDelim(t.input[t.pos+len(s)])
 	}
 	return true // Appears at the end of input
 }

@@ -57,6 +57,14 @@ func TestDefine(t *testing.T) {
 			`,
 			expectedOutput: "Goodbye, world!\n",
 		},
+		{
+			name: "Define a boolean value",
+			prog: `
+				(define true-val #t)
+				(display true-val)
+			`,
+			expectedOutput: "#t\n",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

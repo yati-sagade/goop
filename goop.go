@@ -36,6 +36,13 @@ func NewFuncVal(f GoopFunc) *Val {
 	}
 }
 
+func NewBoolVal(b bool) *Val {
+	return &Val{
+		Type: ValTypeBool,
+		Val:  b,
+	}
+}
+
 func (v *Val) String() string {
 	switch v.Type {
 	case ValTypeString:

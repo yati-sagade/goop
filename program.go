@@ -28,16 +28,18 @@ func (p *Program) eval(s *Sexpr) (*Val, error) {
 	if s.IsAtom() {
 		switch s.Atom.Type {
 		case String:
-			return &Val{Type: ValTypeString, Val: s.Atom.Val}, nil
+			return NewStringVal(s.Atom.Val.(string)), nil
 		case Identifier:
 			val, ok := p.env.Get(s.Atom.Val.(string))
 			if !ok {
 				return nil, fmt.Errorf("undefined variable: '%s'", s.Atom.Val)
 			}
 			return val, nil
+		case Bool:
+			return NewBoolVal(s.Atom.Val.(bool)), nil
 		}
 	}
-	return nil, nil
+	return nil, fmt.Errorf("don't know how to evaluate: %s", s.String())
 }
 
 type RunOptions struct {
